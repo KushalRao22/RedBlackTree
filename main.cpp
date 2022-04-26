@@ -1,8 +1,3 @@
-/*
-This is a class that emulates a Binary Search Tree
-By: Kushal Rao
-Last Modified: 4/22/22
-*/
 //Imports
 #include <iostream>
 #include <fstream>
@@ -15,7 +10,7 @@ using namespace std;
 
 struct node{//Create a node struct
   int value;
-  bool red = true;
+  bool color = true;//true is red
   struct node *left = NULL;
   struct node *right = NULL;
   struct node *parent = NULL;
@@ -24,8 +19,9 @@ struct node{//Create a node struct
 //Methods
 void fileAdd(node* &root, int &cou);
 void display(node* root, int depth);
-void add(node* &root, int input);
+void add(node* root, node* n, int input);
 void manAdd(node* &root);
+void check(node* &curr, node* root);
 
 int main(){
   int count = 1;
@@ -74,28 +70,42 @@ void fileAdd(node* &root, int &count){//Add using file
     }
     int num2 = atoi(temp);
     count++;
-    add(root, num2);
+    node* n = new node();
+    n->value = num2; 
+    if(root == NULL){
+      n->parent = NULL;
+      root = n;
+    }
+    else{
+      add(root, n, num2);
+    }
+    check(n, root);
   }
 }
 
-void manadd(node* &head){//Add manually
+void manAdd(node* &root){//Add manually
   cout << "What is the number you want to add(1-1000)" << endl;
   int input;
   cin >> input;
   cin.clear();
-  add(head, input);
+  node* n = new node();
+  n->value = input; 
+  if(root == NULL){
+    root = n;
+    return;
+  }
+  add(root, n, input);
+  check(n, root);
 }
 
-void add(node* &curr, int input){//Add into the right spot
+void add(node* curr, node* n, int input){//Add into the right spot
   if(curr->right != NULL && input > curr->value){
-    add(curr->right, input);
+    add(curr->right, n, input);
   }
   else if(curr->left != NULL && input <= curr->value){
-    add(curr->left, input);
+    add(curr->left, n, input);
   }
   else{
-    node* n = new node();
-    n->value = input;
     if(input > curr->value){
       n->parent = curr;
       curr->right = n;
@@ -104,7 +114,6 @@ void add(node* &curr, int input){//Add into the right spot
       n->parent = curr;
       curr->left = n;
     }
-    check(n); 
   }
 }
 
@@ -115,8 +124,75 @@ void display(node* root, int depth){//Display method
   for(int i =0; i < depth; i++){//print tabs then yourself
     cout << "\t";
   }
-  cout << root->value << endl;
+  if(root->color){
+    cout << root->value << " RED"<< endl;
+  }
+  else{
+    cout << root->value << " BLACK"<< endl;
+  }
   if(root->left != NULL){//If there is a right call print on the right
     display(root->left, depth + 1);
   }
+}
+
+void check(node* &curr, node* root){
+  node* parent = curr->parent;
+  node* grandparent;
+  node* uncle;
+  if(parent != NULL){
+    grandparent = parent->parent;
+  }
+  else{
+    grandparent = NULL;
+  }
+  if(grandparent != NULL){
+    if(parent == grandparent->right){
+      uncle = grandparent->left;
+    }
+    else{
+      uncle = grandparent->right;
+    }
+  }
+  else{
+    uncle = NULL;
+  }
+  if(curr == root){
+    curr->color = false;
+  }
+  if(parent != NULL && uncle != NULL && grandparent != NULL && parent->color && uncle->color){
+    parent->color = false;
+    uncle-> color = false;
+    grandparent -> color = true;
+    check(grandparent, root);
+  }
+  if(uncle == NULL || !uncle->color){
+    if(grandparent != NULL){
+      if(curr->value < grandparent->value && curr->value > parent->value || curr->value > grandparent->value && curr->value < parent->value){
+	if(parent->right == curr){
+	  node* one = parent->left;
+	  node* two = curr->left;
+	  node* three = curr->right;
+	  grandparent->left = curr;
+	  curr->right = three;
+	  curr->left = parent;
+	  parent->left = one;
+	  parent->right = two;
+	}
+	else{
+	  node* three = curr->left;
+	  node* four = curr->right;
+	  node* five = parent->right;
+	  grandparent-> right = curr;
+	  curr->right = parent;
+	  curr->left = three;
+	  parent->left = four;
+	  parent->right = five;
+	}
+      }
+    }
+  }
+  
+  display(root, 0);
+  cout << endl << "____________________________________________" << endl << endl;
+  
 }
