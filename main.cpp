@@ -125,10 +125,16 @@ void display(node* root, int depth){//Display method
     cout << "\t";
   }
   if(root->color){
-    cout << root->value << " RED"<< endl;
+    cout << root->value << " RED";
   }
   else{
-    cout << root->value << " BLACK"<< endl;
+    cout << root->value << " BLACK";
+  }
+  if(root->parent == NULL){
+    cout << " NULL" << endl;
+  }
+  else{
+    cout << " parent:" << root->parent->value << endl; 
   }
   if(root->left != NULL){//If there is a right call print on the right
     display(root->left, depth + 1);
@@ -162,21 +168,20 @@ void check(node* &curr, node* root){
   //Case 5
   if(uncle == NULL || !uncle->color){
     if(grandparent != NULL){
-      if(curr->value < parent->value && parent->value < grandparent->value || curr->value > parent->value && parent->value > grandparent->value){
+      if((curr->value < parent->value && parent->value < grandparent->value ) || (curr->value > parent->value && parent->value > grandparent->value)){
 	if(parent->left == curr){
 	  node* greatgrandparent = grandparent->parent;
 	  bool left = false;
 	  if(greatgrandparent != NULL && greatgrandparent->left == grandparent){
 	    left = true;
 	  }
-	  node* three = parent->right;
-	  if(three != NULL){
-	    three->parent = grandparent;  
+	  if(parent->right != NULL){
+	    parent->right->parent = grandparent;  
 	  }
-	  grandparent->left = three;
+	  grandparent->left = parent->right;
 	  grandparent->parent = parent;
 	  parent->right = grandparent;
-	  if(greatgrandparent != NULL){
+	  /*if(greatgrandparent != NULL){
 	    parent->parent = greatgrandparent;
 	    if(left){
 	      greatgrandparent->left = parent;
@@ -187,22 +192,21 @@ void check(node* &curr, node* root){
 	  }
 	  else{
 	    root = parent;
-	  }
-     	}
-	else{
+	  }*/
+	}
+	else if(parent->right == curr){
 	  node* greatgrandparent = grandparent->parent;
 	  bool left = false;
 	  if(greatgrandparent != NULL && greatgrandparent->left == grandparent){
 	    left = true;
 	  }
-	  node* three = parent->left;
-	  if(three != NULL){
-	    three->parent = grandparent;  
+	  if(parent->left != NULL){
+	    parent->left->parent = grandparent;  
 	  }
-	  grandparent->right = three;
+	  grandparent->right = parent->left;
 	  grandparent->parent = parent;
 	  parent->left = grandparent;
-	  if(greatgrandparent != NULL){
+	  /*if(greatgrandparent != NULL){
 	    parent->parent = greatgrandparent;
 	    if(left){
 	      greatgrandparent->left = parent;
@@ -213,8 +217,8 @@ void check(node* &curr, node* root){
 	  }
 	  else{
 	    root = parent;
+	  }OB*/
 	  }
-	}
 	if(!grandparent->color){
 	  parent->color = false;
 	  grandparent->color = true;
@@ -235,10 +239,15 @@ void check(node* &curr, node* root){
 	  node* two = curr->left;
 	  node* three = curr->right;
 	  grandparent->left = curr;
+	  curr->parent = grandparent;
 	  curr->right = three;
 	  curr->left = parent;
+	  parent->parent = curr;
 	  parent->left = one;
 	  parent->right = two;
+	  if(two != NULL){
+	    two->parent = parent;
+	  }
 	  check(parent, root);
 	}
 	else{
@@ -246,9 +255,14 @@ void check(node* &curr, node* root){
 	  node* four = curr->right;
 	  node* five = parent->right;
 	  grandparent-> right = curr;
+	  curr->parent = grandparent;
 	  curr->right = parent;
+	  parent->parent = curr;
 	  curr->left = three;
 	  parent->left = four;
+	  if(four != NULL){
+	    four->parent = parent;
+	  }
 	  parent->right = five;
 	  check(parent, root);
 	}
@@ -262,7 +276,7 @@ void check(node* &curr, node* root){
     grandparent -> color = true;
     check(grandparent, root);
   }
-  //display(root, 0);
+  display(root, 0);
   cout << endl << "____________________________________________" << endl << endl;
   
 }
