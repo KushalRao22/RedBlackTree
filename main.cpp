@@ -19,9 +19,9 @@ struct node{//Create a node struct
 //Methods
 void fileAdd(node* &root, int &cou);
 void display(node* root, int depth);
-void add(node* root, node* n, int input);
+void add(node* curr, node* n, int input, node* root);
 void manAdd(node* &root);
-void check(node* &curr, node* root);
+void check(node* curr, node* &root);
 
 int main(){
   int count = 1;
@@ -75,11 +75,11 @@ void fileAdd(node* &root, int &count){//Add using file
     if(root == NULL){
       n->parent = NULL;
       root = n;
+      check(root, n);
     }
     else{
-      add(root, n, num2);
+      add(root, n, num2, root);
     }
-    check(n, root);
   }
 }
 
@@ -92,27 +92,30 @@ void manAdd(node* &root){//Add manually
   n->value = input; 
   if(root == NULL){
     root = n;
+    check(n, root);
     return;
   }
-  add(root, n, input);
-  check(n, root);
+  add(root, n, input, root);
+  
 }
 
-void add(node* curr, node* n, int input){//Add into the right spot
+void add(node* curr, node* n, int input, node* root){//Add into the right spot
   if(curr->right != NULL && input > curr->value){
-    add(curr->right, n, input);
+    add(curr->right, n, input, root);
   }
   else if(curr->left != NULL && input <= curr->value){
-    add(curr->left, n, input);
+    add(curr->left, n, input, root);
   }
   else{
     if(input > curr->value){
       n->parent = curr;
       curr->right = n;
+      check(curr->right, root);
     }
     if(input <= curr->value){
       n->parent = curr;
       curr->left = n;
+      check(curr->left, root);
     }
   }
 }
@@ -141,142 +144,109 @@ void display(node* root, int depth){//Display method
   }
 }
 
-void check(node* &curr, node* root){
-  node* parent = curr->parent;
-  node* grandparent;
-  node* uncle;
-  if(parent != NULL){
-    grandparent = parent->parent;
-  }
-  else{
-    grandparent = NULL;
-  }
-  if(grandparent != NULL){
-    if(parent == grandparent->right){
-      uncle = grandparent->left;
-    }
-    else{
-      uncle = grandparent->right;
-    }
-  }
-  else{
-    uncle = NULL;
-  }
-  if(curr == root){
-    curr->color = false;
-  }
-  //Case 5
-  if(uncle == NULL || !uncle->color){
-    if(grandparent != NULL){
-      if((curr->value < parent->value && parent->value < grandparent->value ) || (curr->value > parent->value && parent->value > grandparent->value)){
-	if(parent->left == curr){
-	  node* greatgrandparent = grandparent->parent;
-	  bool left = false;
-	  if(greatgrandparent != NULL && greatgrandparent->left == grandparent){
-	    left = true;
-	  }
-	  if(parent->right != NULL){
-	    parent->right->parent = grandparent;  
-	  }
-	  grandparent->left = parent->right;
-	  grandparent->parent = parent;
-	  parent->right = grandparent;
-	  /*if(greatgrandparent != NULL){
-	    parent->parent = greatgrandparent;
-	    if(left){
-	      greatgrandparent->left = parent;
-	    }
-	    else{
-	      greatgrandparent->right = parent;
-	    }
-	  }
-	  else{
-	    root = parent;
-	  }*/
-	}
-	else if(parent->right == curr){
-	  node* greatgrandparent = grandparent->parent;
-	  bool left = false;
-	  if(greatgrandparent != NULL && greatgrandparent->left == grandparent){
-	    left = true;
-	  }
-	  if(parent->left != NULL){
-	    parent->left->parent = grandparent;  
-	  }
-	  grandparent->right = parent->left;
-	  grandparent->parent = parent;
-	  parent->left = grandparent;
-	  /*if(greatgrandparent != NULL){
-	    parent->parent = greatgrandparent;
-	    if(left){
-	      greatgrandparent->left = parent;
-	    }
-	    else{
-	      greatgrandparent->right = parent;
-	    }
-	  }
-	  else{
-	    root = parent;
-	  }OB*/
-	  }
-	if(!grandparent->color){
-	  parent->color = false;
-	  grandparent->color = true;
-	}
-	else{
-	  parent->color = true;
-	  grandparent->color = false;
-	}
+void check(node* curr, node* &root){
+  node* parent = NULL;
+  node* grandparent = NULL;
+  node* uncle = NULL;
+   if (curr->parent != NULL) {
+    parent = curr->parent;
+    cout << parent->value << endl;
+    if (parent->parent != NULL) {
+      grandparent = parent->parent;
+      cout << grandparent->value << endl;
+      if (grandparent->left == parent) {
+	uncle = grandparent->right;
+      }
+      else if (grandparent->right == parent) {
+	uncle = grandparent->left;
+      }
+      if(uncle != NULL){
+	cout << uncle->value << endl;
       }
     }
   }
-  //Case 4
-  if(uncle == NULL || !uncle->color){
-    if(grandparent != NULL){
-      if(curr->value < grandparent->value && curr->value > parent->value || curr->value > grandparent->value && curr->value < parent->value){
-	if(parent->right == curr){
-	  node* one = parent->left;
-	  node* two = curr->left;
-	  node* three = curr->right;
-	  grandparent->left = curr;
-	  curr->parent = grandparent;
-	  curr->right = three;
-	  curr->left = parent;
-	  parent->parent = curr;
-	  parent->left = one;
-	  parent->right = two;
-	  if(two != NULL){
-	    two->parent = parent;
-	  }
-	  check(parent, root);
-	}
-	else{
-	  node* three = curr->left;
-	  node* four = curr->right;
-	  node* five = parent->right;
-	  grandparent-> right = curr;
-	  curr->parent = grandparent;
-	  curr->right = parent;
-	  parent->parent = curr;
-	  curr->left = three;
-	  parent->left = four;
-	  if(four != NULL){
-	    four->parent = parent;
-	  }
-	  parent->right = five;
-	  check(parent, root);
-	}
-      }
-    }
-  }
+ 
+   //Case 1
+   if(curr == root){
+     curr->color = false;
+     return;
+   }
+   //Case 2
+   else if(parent != NULL && !parent->color){
+     return;
+   }  
   //Case 3
-  if(parent != NULL && uncle != NULL && grandparent != NULL && parent->color && uncle->color){
+   else if(uncle != NULL && parent->color && uncle->color){
     parent->color = false;
     uncle-> color = false;
     grandparent -> color = true;
     check(grandparent, root);
   }
-  display(root, 0);
-  cout << endl << "____________________________________________" << endl << endl;
-  
+   
+   //Try else if if this does not work
+   else if(uncle == NULL || !uncle->color){
+     //Case 4
+     if (parent == grandparent->right && curr == parent->left) {
+       grandparent->right = curr;
+       curr->parent = grandparent;
+       node* temp = curr->right;
+       curr->right = parent;
+       parent->parent = curr;
+       parent->left = temp;
+       parent = curr;
+       curr = parent->right;
+       cout << "CASE 4" << endl;
+    }
+     else if (parent == grandparent->left && curr == parent->right) {
+       grandparent->left = curr;
+       curr->parent = grandparent;
+       node* temp = curr->left;
+       curr->left = parent;
+       parent->parent = curr;
+       parent->right = temp;
+       parent = curr;
+       curr = parent->left;
+       cout << "CASE 4" << endl;
+     }
+     //Case 5
+     if (parent->color && curr->color) {
+     node* greatgrandparent = NULL;
+	if(grandparent->left == parent && parent->left == curr){
+	  node* temp = parent->right;
+	  parent->right = grandparent;
+	  if(grandparent != root){
+	    greatgrandparent = grandparent->parent;
+	    parent->parent = greatgrandparent;
+	    greatgrandparent->left = parent;
+	  }
+	  else {
+	    parent->parent = NULL;
+	    root = parent;
+	  }
+	  grandparent->parent = parent;
+	  grandparent->left = temp;
+	  parent->color = false;
+	  grandparent->color = true;
+	  cout << "CASE 5" << endl;
+	}
+	else if(grandparent->right == parent && parent->right == curr){
+	  node* temp = parent->left;
+	  parent->left = grandparent;
+	  if (grandparent != root) {
+	    greatgrandparent = grandparent->parent;
+	    parent->parent = greatgrandparent;
+
+	  }
+	  else {
+	    parent->parent = NULL;
+	    root = parent;
+	  }
+	  grandparent->parent = parent;
+	  grandparent->right = temp;
+	  parent->color = false;
+	  grandparent->color = true;
+	  cout << "CASE 5" << endl;
+	}
+      }
+   }
 }
