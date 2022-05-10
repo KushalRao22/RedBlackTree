@@ -23,6 +23,9 @@ void display(node* root, int depth);
 void add(node* curr, node* n, int input, node* &root);
 void manAdd(node* &root);
 void check(node* curr, node* &root);
+void remove(node* &root);
+bool search(node* root, int goal, node* &goaln);
+
 
 int main(){
   int count = 1;
@@ -38,7 +41,21 @@ int main(){
     if(strcmp(input,"ADD") == 0){//If user wants to add students
       fileAdd(root, count);
     }
-    else if(strcmp(input, "DISPLAY")==0){//Dislay as a tree
+    if(strcmp(input,"SEARCH") == 0){//If user wants to search students
+      int num;
+      cout << "What number do you want to look for" << endl;
+      cin >> num;
+      cin.clear();
+      node* temp;
+      bool n = search(root, num, temp);
+      if(n){
+	cout << "Present" << endl;
+      }
+      else{
+	cout << "Not there" << endl;
+      }
+    }
+    if(strcmp(input, "DISPLAY")==0){//Dislay as a tree
       if(root != NULL){
 	display(root, 0);
       }
@@ -46,11 +63,38 @@ int main(){
 	cout << "There is no root" << endl;
       }
     }
+    if(strcmp(input, "REMOVE")==0){
+      remove(root);
+    }
     else if(strcmp(input,"QUIT") == 0){//If user wants to quit
       quit = true;
     }
   }
   return 0;
+}
+
+void remove(node* &root){
+  
+}
+
+bool search(node* root, int goal, node* &goaln){//Look for the node that has a certain value
+  bool n = false;
+  if(root->value == goal){//If current is the goal node
+    goaln = root;
+    return true;
+  }
+  else{
+    if(root->right != NULL && goal > root->value){//If there is a right call search on the right
+      n = search(root->right, goal, goaln);
+    }
+    else if(root->left != NULL && goal <= root->value){//If there is a right call search on the right
+      n = search(root->left, goal, goaln);
+    }
+    if(n){//If the node has been found
+      return true;
+    }
+  }
+  return false;
 }
 
 void fileAdd(node* &root, int &count){//Add using file
