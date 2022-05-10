@@ -38,8 +38,12 @@ int main(){
       fileAdd(root, count);
     }
     else if(strcmp(input, "DISPLAY")==0){//Dislay as a tree
-      display(root, 0);
-      
+      if(root != NULL){
+	display(root, 0);
+      }
+      else{
+	cout << "There is no root" << endl;
+      }
     }
     else if(strcmp(input,"QUIT") == 0){//If user wants to quit
       quit = true;
