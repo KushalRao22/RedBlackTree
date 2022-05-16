@@ -25,7 +25,7 @@ void manAdd(node* &root);
 void check(node* curr, node* &root);
 void remove(node* &root);
 bool search(node* root, int goal, node* &goaln);
-
+void removeCheck(node* curr, node* &root);
 
 int main(){
   int count = 1;
@@ -73,9 +73,111 @@ int main(){
   return 0;
 }
 
-void remove(node* &root){
-  
+void removeCheck(node* curr, node* &root){
+  cout << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endlls
+       << "CHECK" << endl;
 }
+
+void remove(node* &root){
+  node* goaln;//pointer to hold the goal node's adress
+  bool n;
+  cout << "What number do you want to delete" << endl;
+  int goal;
+  cin >> goal;
+  cin.clear();
+  if(!search(root, goal, goaln)){//Check if a node with that value exists and find the pointer for it
+    cout << "Input a valid number" << endl;
+    return;
+  }
+  node* parent = goaln->parent;
+  if(goaln != root){//If the node that is to be removed is the not the root
+    if(parent->left == goaln){
+      n = true;
+    }
+    else{
+      n = false;
+    }//If n is ture curr is left of parent
+  }
+  if(goaln == root){//If there is nothing but the root remove the root
+    if(goaln ->right == NULL && goaln->left == NULL){
+      root = NULL;
+      return;
+    }
+    else if(goaln->right != NULL && goaln->left != NULL){//If there is a right and left
+      node * temp = goaln->right;
+      while(temp->left != NULL){
+	temp = temp->left;
+      }
+      goaln->value = temp->value;
+      removeCheck(temp, root);
+      if(temp == goaln->right){
+        goaln->right = goaln->right->right;
+      }
+      if(temp->parent->left == temp){
+        temp->parent->left = NULL;
+      }
+      return;
+    }
+    if(root->right == NULL){//If there only is a right
+      root = root->left;
+    }
+    else{//If there only is a left
+      root = root->right;
+    }
+  }
+  else{//If the goal node is not the root
+    if(goaln->right == NULL && goaln->left == NULL){//If both are null set the parents pointer that would point to the goal node to NULL
+      if(n){
+	removeCheck(goaln, root);
+	parent->left = NULL;
+      }
+      else{
+	removeCheck(goaln, root);
+	parent->right = NULL;
+      }
+      return;
+    }
+    else if(goaln->right != NULL && goaln->left != NULL){//If there is a both right and left
+      node * temp = goaln->right;
+      while(temp->left != NULL){
+	temp = temp->left;
+      }
+      goaln->value = temp->value;
+      removeCheck(temp, root);
+      if(temp == goaln->right){
+        goaln->right = goaln->right->right;
+      }
+      if(temp->parent->left == temp){
+        temp->parent->left = NULL;
+      }
+      return;
+    }
+    else{//If there is only one child
+      if(n){
+	if(goaln->left == NULL){
+	  removeCheck(goaln, root);
+	  parent->left = goaln->right;
+	}
+	else{
+	  removeCheck(goaln, root);
+	  parent->left = goaln->left;
+	}
+      }
+      else{
+	if(goaln->left == NULL){
+	  removeCheck(goaln, root);
+	  parent->right = goaln->right;
+	}
+	else{
+	  removeCheck(goaln, root);
+	  parent->right = goaln->left;
+	}
+      }
+      return;
+    } 
+  }
+}
+
 
 bool search(node* root, int goal, node* &goaln){//Look for the node that has a certain value
   bool n = false;
