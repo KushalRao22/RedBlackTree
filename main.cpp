@@ -74,8 +74,100 @@ int main(){
 }
 
 void removeCheck(node* curr, node* &root){
-  cout << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endl << "CHECK" << endlls
-       << "CHECK" << endl;
+  node* sibling = NULL;
+  node* parent = NULL;
+  node* grandparent = NULL;
+  if(curr->parent != NULL){
+    parent = curr->parent;
+    if(parent->left == curr && parent->right != NULL){
+      sibling = parent->right;
+    }
+    else if(parent->right == curr && parent->left != NULL){
+      sibling = parent->left;
+    }
+    if(parent->parent != NULL){
+      grandparent = parent->parent;
+    }
+  }
+  //CASE 1
+  if(curr == root){
+    if(curr->right == NULL){
+      node* temp = root;
+      delete temp;
+      root = curr->left;
+    }
+    else{
+      node* temp = root;
+      delete temp;
+      root = curr->right;
+    }
+  }
+  //CASE 2
+  if(sibling->color){
+    if(parent->right == curr){
+      sibling->color = false;
+      parent->color = true;
+      parent->right = sibling->left;
+      sibling->left->parent = parent;
+      sibling->left = parent;
+      parent->parent = sibling;
+      if(grandparent != NULL){
+	if(grandparent->right == parent){
+	  grandparent->right = sibling;
+	}
+	else{
+	  grandparent->left = sibling;
+	}
+	sibling->parent = grandparent;
+      }
+      else{
+	root = sibling;
+      }
+    }
+    else{
+      sibling->color = false;
+      parent->color = true;
+      parent->left = sibling->right;
+      sibling->right->parent = parent;
+      sibling->right = parent;
+      parent->parent = sibling;
+      if(grandparent != NULL){
+	if(grandparent->right == parent){
+	  grandparent->right = sibling;
+	}
+	else{
+	  grandparent->left = sibling;
+	}
+	sibling->parent = grandparent;
+      }
+      else{
+	root = sibling;
+      }
+    }
+    if(curr->parent != NULL){
+      parent = curr->parent;
+      if(parent->left == curr && parent->right != NULL){
+	sibling = parent->right;
+      }
+      else if(parent->right == curr && parent->left != NULL){
+	sibling = parent->left;
+      }
+      if(parent->parent != NULL){
+	grandparent = parent->parent;
+      }
+    }
+  }
+  //CASE 3
+  if(!sibling->color){
+    sibling->color = true;
+    removeCheck(parent, root);
+  }
+  //CASE 4
+  else{
+    
+  }
+  
+  
 }
 
 void remove(node* &root){
@@ -100,6 +192,8 @@ void remove(node* &root){
   }
   if(goaln == root){//If there is nothing but the root remove the root
     if(goaln ->right == NULL && goaln->left == NULL){
+      node* temp = root;
+      delete temp;
       root = NULL;
       return;
     }
@@ -119,14 +213,30 @@ void remove(node* &root){
       return;
     }
     if(root->right == NULL){//If there only is a right
+      node* temp = root;
+      delete temp;
       root = root->left;
     }
     else{//If there only is a left
+      node* temp = root;
+      delete temp;
       root = root->right;
     }
+    root->color = false;
   }
   else{//If the goal node is not the root
     if(goaln->right == NULL && goaln->left == NULL){//If both are null set the parents pointer that would point to the goal node to NULL
+      if(goaln->color){
+	if(n){
+	  delete goaln;
+	  parent->left = NULL;
+	}
+	else{
+	  delete goaln;
+	  parent->right;
+	}
+	return;
+      }
       if(n){
 	removeCheck(goaln, root);
 	parent->left = NULL;
@@ -155,22 +265,54 @@ void remove(node* &root){
     else{//If there is only one child
       if(n){
 	if(goaln->left == NULL){
-	  removeCheck(goaln, root);
+	  if(goaln->right->color == !goaln->color){
+	    delete goaln;
+	    parent->left = goaln->right;
+	    if(goaln->right->color){
+	      goaln->color = false;
+	    }
+	    return;
+	  }
 	  parent->left = goaln->right;
+	  removeCheck(goaln, root);
 	}
 	else{
-	  removeCheck(goaln, root);
+	  if(goaln->left->color == !goaln->color){
+	    delete goaln;
+	    parent->left = goaln->left;
+	    if(goaln->left->color){
+	      goaln->color = false;
+	    }
+	    return;
+	  }
 	  parent->left = goaln->left;
+	  removeCheck(goaln, root);
 	}
       }
       else{
 	if(goaln->left == NULL){
-	  removeCheck(goaln, root);
+	  if(goaln->right->color == !goaln->color){
+	    delete goaln;
+	    parent->right = goaln->right;
+	    if(goaln->right->color){
+	      goaln->color = false;
+	    }
+	    return;
+	  }
 	  parent->right = goaln->right;
+	  removeCheck(goaln, root);
 	}
 	else{
-	  removeCheck(goaln, root);
+	  if(goaln->left->color == !goaln->color){
+	    delete goaln;
+	    parent->right = goaln->left;
+	    if(goaln->left->color){
+	      goaln->color = false;
+	    }
+	    return;
+	  }
 	  parent->right = goaln->left;
+	  removeCheck(goaln, root);
 	}
       }
       return;
