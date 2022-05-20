@@ -23,7 +23,7 @@ void display(node* root, int depth);
 void add(node* curr, node* n, int input, node* &root);
 void manAdd(node* &root);
 void check(node* curr, node* &root);
-void remove(node* &root);
+void remove(node* &root, node* &goaln);
 bool search(node* root, int goal, node* &goaln);
 void removeCheck(node* curr, node* &root);
 
@@ -64,7 +64,17 @@ int main(){
       }
     }
     if(strcmp(input, "REMOVE")==0){
-      remove(root);
+      node* goaln;//pointer to hold the goal node's adress
+      cout << "What number do you want to delete" << endl;
+      int goal;
+      cin >> goal;
+      cin.clear();
+      if(!search(root, goal, goaln)){//Check if a node with that value exists and find the pointer for it
+	cout << "Input a valid number" << endl;
+      }
+      else{
+	remove(root, goaln);
+      }
     }
     else if(strcmp(input,"QUIT") == 0){//If user wants to quit
       quit = true;
@@ -163,24 +173,92 @@ void removeCheck(node* curr, node* &root){
     removeCheck(parent, root);
   }
   //CASE 4
+  else if(parent->color && !sibling->color && (sibling->left == NULL || !sibling->left->color) && (sibling->right == NULL || !sibling->right->color)){
+      	parent->color = false;
+	sibling->color = true;
+  }
+  //Case 5
+  else if((!sibling->color && (sibling->left == NULL || !sibling->left->color) && sibling->right->color && parent->right == curr) ||
+	  (!sibling->color && (sibling->right == NULL || !sibling->right->color) && sibling->left->color && parent->left == curr)){
+    if(parent->right == curr){
+      node* temp = sibling->right->left;
+      sibling->right->color = false;
+      sibling->color = true;
+      parent->left = sibling->right;
+      sibling->right->parent = parent;
+      sibling->right->left = sibling;
+      sibling->parent = sibling->right;
+      sibling->right = temp;
+    }
+    else{
+      node* temp = sibling->left->right;
+      sibling->right->color = false;
+      sibling->color = true;
+      parent->right = sibling->left;
+      sibling->left->parent = parent;
+      sibling->left->right = sibling;
+      sibling->parent = sibling->left;
+      sibling->left = temp;
+    }
+  }
+  //CASE 6
   else{
-    
+    if((!sibling->color && sibling->left->color && parent->right == curr) || (!sibling->color && sibling->right->color && parent->left == curr)){
+      sibling->color = parent->color;
+      parent->color = false;
+      if(parent->right == curr){
+	node* temp = sibling->right;
+	sibling->left->color = false;
+	sibling->right = parent;
+	parent->parent = sibling;
+	parent->left = temp;
+	if(temp != NULL){
+	  temp->parent = parent;
+	}
+	if(grandparent != NULL){
+	  if(grandparent->right == parent){
+	    grandparent->right = sibling;
+	  }
+	  else{
+	    grandparent->left = sibling;
+	  }
+	  sibling->parent = grandparent;
+	}
+	else{
+	  root = sibling;
+	} 
+      }
+      else{
+	node* temp = sibling->left;
+	sibling->right->color = false;
+	sibling->left = parent;
+	parent->parent = sibling;
+	parent->right = temp;
+	if(temp != NULL){
+	  temp->parent = parent;
+	}
+	if(grandparent != NULL){
+	  if(grandparent->right == parent){
+	    grandparent->right = sibling;
+	  }
+	  else{
+	    grandparent->left = sibling;
+	  }
+	  sibling->parent = grandparent;
+	}
+	else{
+	  root = sibling;
+	}
+      }
+    }
   }
+  remove(root, curr);
   
-  
-}
+} 
 
-void remove(node* &root){
-  node* goaln;//pointer to hold the goal node's adress
+
+void remove(node* &root, node* &goaln){
   bool n;
-  cout << "What number do you want to delete" << endl;
-  int goal;
-  cin >> goal;
-  cin.clear();
-  if(!search(root, goal, goaln)){//Check if a node with that value exists and find the pointer for it
-    cout << "Input a valid number" << endl;
-    return;
-  }
   node* parent = goaln->parent;
   if(goaln != root){//If the node that is to be removed is the not the root
     if(parent->left == goaln){
