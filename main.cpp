@@ -274,13 +274,21 @@ void removeCheck(node *curr, node *&root, node *&goaln) {
 					temp = temp->left;
 				}
 				goaln->value = temp->value;
-				removeCheck(temp, root, goaln);
+				removeCheck(temp, root, temp);
 				if (temp == goaln->right) {
 					goaln->right = goaln->right->right;
 				}
+        else if(temp->right != NULL){
+            temp->parent->left = temp->right;
+            if(temp->parent->color){
+              temp->right->color = false;
+            }
+          
+        }
 				if (temp->parent->left == temp) {
 					temp->parent->left = NULL;
 				}
+        
 				return;
 			}
 			if (root->right == NULL) { // If there only is a right
@@ -324,7 +332,7 @@ void removeCheck(node *curr, node *&root, node *&goaln) {
 					temp = temp->left;
 				}
 				goaln->value = temp->value;
-				removeCheck(temp, root, goaln);
+				removeCheck(temp, root, temp);
 				if (temp == goaln->right) {
 					goaln->right = goaln->right->right;
 				}
